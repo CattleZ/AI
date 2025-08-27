@@ -1,6 +1,7 @@
 package com.example.quickstart;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.api.OllamaOptions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,19 @@ public class Testollama {
     {
         Flux<String> content = ollamaChatModel.stream("你好，你是谁?");
         content.toIterable().forEach(System.out::println);
+    }
+
+
+    /**
+     * chatModel 直接使用多个模型
+     * @param ollamaChatMode
+     */
+
+    @Test
+    public void testChatClineDubModel(@Autowired OllamaChatModel ollamaChatMode){
+        ChatClient chatClient = ChatClient.builder(ollamaChatMode).build();
+        String content = chatClient.prompt().user("你好").call().content();
+        System.out.println( content);
     }
 
 }
