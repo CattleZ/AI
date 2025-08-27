@@ -25,9 +25,11 @@ public class TestPrompt {
                 ** 特别注意： **
                 - 不承担律师责任
                 - 不生成涉敏、虚假内容
+                
+                当前服务的用户 姓名{name}, 性别：{sex}
                 """).build();
 
-        Flux<String> content = chatClient.prompt().user("你好").stream().content();
+        Flux<String> content = chatClient.prompt().system(p -> p.param("name", "张三").param("sex", "男")).user("你好").stream().content();
         content.toIterable().forEach(System.out::println);
     }
 }
