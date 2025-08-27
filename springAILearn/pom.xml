@@ -35,6 +35,7 @@
 	
 	<modules>
 		<module>quick-start</module>
+		<module>chatClineTest</module>
 	</modules>
 
 	<dependencyManagement>
