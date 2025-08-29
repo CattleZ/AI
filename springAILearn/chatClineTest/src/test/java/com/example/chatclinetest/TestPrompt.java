@@ -2,11 +2,13 @@ package com.example.chatclinetest;
 
 
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.Resource;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.prompt.PromptTemplate;
-import org.springframework.ai.ollama.OllamaChatModel;
+import org.springframework.ai.chat.prompt.SystemPromptTemplate;
 import org.springframework.ai.template.st.StTemplateRenderer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.core.publisher.Flux;
 
@@ -16,9 +18,14 @@ import java.util.Map;
 public class TestPrompt {
 
 
+    @Value("classpath:system-prompt.txt")
+    private Resource systemPromptResource;
 
     @Test
     public void testPrompt(@Autowired ChatClient.Builder builder) {
+        // 提示词模板文件
+        SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(systemPromptResource);
+
         // 提示词模板
         PromptTemplate promptTemplate = PromptTemplate.builder()
                 .renderer(StTemplateRenderer.builder().startDelimiterToken('<').endDelimiterToken('>').build())
@@ -27,6 +34,9 @@ public class TestPrompt {
                         """).build();
 
         String prompt = promptTemplate.render(Map.of("composer","John Williams"));
+
+        // 设置接入外部系统提示词
+        ChatClient chatClient1 = builder.defaultSystem(systemPromptResource).build();
 
         // 系统提示词
         ChatClient chatClient = builder.defaultSystem("""
