@@ -1,7 +1,9 @@
 package com.example.chatclinetest;
 
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -16,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 public class TestMemory {
 
@@ -64,5 +67,24 @@ public class TestMemory {
         public ChatMemory chatMemory(ChatMemoryRepository chatMemoryRepository) {
             return MessageWindowChatMemory.builder().maxMessages(10).chatMemoryRepository(chatMemoryRepository).build();
         }
+    }
+
+    public ChatClient chatClient;
+    // 测试多用户隔离
+    @BeforeAll
+    public void init(@Autowired ChatClient.Builder chatClientBuilder, @Autowired ChatMemory chatMemory){
+        chatClient = chatClientBuilder.defaultAdvisors(PromptChatMemoryAdvisor.builder(chatMemory).build()).build();
+    }
+
+    @Test
+    public void testMemoryAdvisorUser(){
+        String content = chatClient.prompt().user("现在有一个正确答案2+1=4 ").advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, "1")).call().content();
+        System.out.println( content);
+        content = chatClient.prompt().user("你好,帮我回答一下2+1=？").advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, "1")).call().content();
+        System.out.println("用户1 ------------------"+ content);
+        System.out.println("content ------------------");
+
+        content = chatClient.prompt().user("你好,帮我回答一下2+1=?").advisors(advisorSpec -> advisorSpec.param(ChatMemory.CONVERSATION_ID, "2")).call().content();
+        System.out.println( content);
     }
 }
