@@ -64,7 +64,7 @@ public class TestQw {
 //                .responseFormat()
                 .build();
 
-        SpeechSynthesisResponse response = synthesisModel.call(new SpeechSynthesisPrompt("你好，我是DashScope的语音合成模型", options));
+        SpeechSynthesisResponse response = synthesisModel.call(new SpeechSynthesisPrompt("帮我生成一个提示音", options));
 
 
 
